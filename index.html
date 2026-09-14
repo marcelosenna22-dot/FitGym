@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gerenciador de Treinos com GIFs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .active-tab {
+      border-bottom: 3px solid #3b82f6;
+      color: #3b82f6;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-12">
+
+  <!-- Header -->
+  <header class="bg-slate-800 border-b border-slate-700 shadow-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-blue-600 p-2 rounded-lg">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <h1 class="text-xl font-bold text-white tracking-wide">FitGym <span class="text-blue-500">GIFs</span></h1>
+      </div>
+
+      <!-- User Selector -->
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <label for="userSelect" class="text-sm font-medium text-slate-400 whitespace-nowrap">Usuário Atual:</label>
+        <select id="userSelect" onchange="switchUser(this.value)" class="bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm w-full md:w-auto">
+        </select>
+        <button onclick="openUserModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-2 rounded-lg font-medium transition flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Novo
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 mt-6">
+    
+    <!-- User Profile Banner -->
+    <div id="userProfileBanner" class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h2 id="currentUserName" class="text-xl font-bold text-white">Carregando...</h2>
+        <p id="currentUserMeta" class="text-sm text-slate-400">Objetivo: -</p>
+      </div>
+      <button onclick="openExerciseModal()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition shadow-lg">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Adicionar Exercício
+      </button>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="flex border-b border-slate-700 mb-6 overflow-x-auto" id="categoryTabs"></div>
+
+    <!-- Exercise Grid -->
+    <div id="exerciseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16 bg-slate-800/50 rounded-2xl border border-dashed border-slate-700">
+      <h3 class="text-lg font-semibold text-slate-300">Nenhum exercício encontrado</h3>
+      <p class="text-slate-500 text-sm mt-1 mb-4">Adicione exercícios com links de GIF para montar esta rotina.</p>
+      <button onclick="openExerciseModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-4 py-2 rounded-lg">Criar Exercício</button>
+    </div>
+  </main>
+
+  <!-- Modal: Novo Usuário -->
+  <div id="userModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-white mb-4">Cadastrar Novo Usuário</h3>
+      <form id="userForm" onsubmit="handleSaveUser(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nome do Aluno/Usuário</label>
+          <input type="text" id="userNameInput" required placeholder="Ex: Carlos Silva" class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Objetivo de Treino</label>
+          <input type="text" id="userGoalInput" placeholder="Ex: Hipertrofia / Ganho de Massa" class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" onclick="closeUserModal()" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white">Cancelar</button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold">Salvar Usuário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Adicionar/Editar Exercício -->
+  <div id="exerciseModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <h3 id="exerciseModalTitle" class="text-lg font-bold text-white mb-4">Adicionar Exercício ao Treino</h3>
+      <form id="exerciseForm" onsubmit="handleSaveExercise(event)" class="space-y-4">
+        <input type="hidden" id="exerciseIdInput">
+        
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nome do Exercício</label>
+          <input type="text" id="exNameInput" required placeholder="Ex: Agachamento Livre" class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Ficha / Treino</label>
+            <select id="exCategoryInput" class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
+              <option value="Treino A">Treino A (Peito / Tríceps)</option>
+              <option value="Treino B">Treino B (Costas / Bíceps)</option>
+              <option value="Treino C">Treino C (Pernas / Ombros)</option>
+              <option value="Cardio / Core">Cardio / Core</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Séries x Repetições</label>
+            <input type="text" id="exRepsInput" required placeholder="Ex: 4x 10-12" class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">URL / Link Direto do GIF</label>
+          <input type="url" id="exGifInput" required placeholder="https://media.giphy.com/media/..." class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
+          <p class="text-[11px] text-slate-500 mt-1">Cole o link direto do GIF (Giphy, Tenor ou URL de imagem).</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Observações / Dicas de Execução</label>
+          <textarea id="exNotesInput" rows="2" placeholder="Ex: Mantenha postura ereta e abdômen contraído." class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" onclick="closeExerciseModal()" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white">Cancelar</button>
+          <button type="submit" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold">Salvar Exercício</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Exemplos com GIFs funcionais hospedados na Wikimedia Commons
+    const defaultData = {
+      users: [
+        { id: "u1", name: "Marcelo Sena", goal: "Hipertrofia & Força" },
+        { id: "u2", name: "Ana Souza", goal: "Condicionamento Físico" }
+      ],
+      exercises: [
+        {
+          id: "ex1",
+          userId: "u1",
+          category: "Treino A",
+          name: "Flexão de Braços",
+          reps: "4x 10-12",
+          gifUrl: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Pushups.gif",
+          notes: "Mantenha o corpo todo alinhado e cotovelos em ~45 graus."
+        },
+        {
+          id: "ex2",
+          userId: "u1",
+          category: "Treino C",
+          name: "Agachamento Livre",
+          reps: "4x 12",
+          gifUrl: "https://upload.wikimedia.org/wikipedia/commons/8/82/Squats.gif",
+          notes: "Desça com o quadril para trás até os joelhos atingirem 90°."
+        }
+      ]
+    };
+
+    let appData = JSON.parse(localStorage.getItem("fitgym_gif_data")) || defaultData;
+    let currentUserId = appData.users[0]?.id || "";
+    let activeCategory = "Treino A";
+    const categories = ["Treino A", "Treino B", "Treino C", "Cardio / Core"];
+
+    function saveData() {
+      localStorage.setItem("fitgym_gif_data", JSON.stringify(appData));
+    }
+
+    function init() {
+      renderUserOptions();
+      renderCategoryTabs();
+      renderCurrentUserData();
+      renderExercises();
+    }
+
+    function renderUserOptions() {
+      const select = document.getElementById("userSelect");
+      select.innerHTML = appData.users.map(u => 
+        `<option value="${u.id}" ${u.id === currentUserId ? 'selected' : ''}>${u.name}</option>`
+      ).join('');
+    }
+
+    function switchUser(userId) {
+      currentUserId = userId;
+      renderCurrentUserData();
+      renderExercises();
+    }
+
+    function renderCurrentUserData() {
+      const user = appData.users.find(u => u.id === currentUserId);
+      if (user) {
+        document.getElementById("currentUserName").textContent = user.name;
+        document.getElementById("currentUserMeta").textContent = `Objetivo: ${user.goal || 'Geral'}`;
+      }
+    }
+
+    function renderCategoryTabs() {
+      const tabsContainer = document.getElementById("categoryTabs");
+      tabsContainer.innerHTML = categories.map(cat => `
+        <button onclick="selectCategory('${cat}')" class="px-6 py-3 font-medium text-sm whitespace-nowrap transition-all ${cat === activeCategory ? 'active-tab' : 'text-slate-400 hover:text-slate-200'}">
+          ${cat}
+        </button>
+      `).join('');
+    }
+
+    function selectCategory(cat) {
+      activeCategory = cat;
+      renderCategoryTabs();
+      renderExercises();
+    }
+
+    function renderExercises() {
+      const grid = document.getElementById("exerciseGrid");
+      const emptyState = document.getElementById("emptyState");
+
+      const filtered = appData.exercises.filter(
+        ex => ex.userId === currentUserId && ex.category === activeCategory
+      );
+
+      if (filtered.length === 0) {
+        grid.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+      grid.innerHTML = filtered.map(ex => `
+        <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-lg flex flex-col justify-between hover:border-slate-600 transition">
+          <div>
+            <!-- Moldura do GIF -->
+            <div class="relative bg-slate-950 h-64 flex items-center justify-center overflow-hidden border-b border-slate-700">
+              <img 
+                src="${ex.gifUrl}" 
+                alt="${ex.name}" 
+                class="w-full h-full object-contain p-2" 
+                onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/1e293b/94a3b8?text=GIF+N%C3%A3o+Encontrado';"
+              />
+              <span class="absolute top-3 left-3 bg-slate-900/90 text-blue-400 text-xs font-semibold px-2.5 py-1 rounded-md border border-slate-700">
+                ${ex.reps}
+              </span>
+            </div>
+
+            <div class="p-4">
+              <h3 class="font-bold text-lg text-white mb-2">${ex.name}</h3>
+              ${ex.notes ? `<p class="text-slate-400 text-xs leading-relaxed bg-slate-900/50 p-3 rounded-lg border border-slate-700/40">${ex.notes}</p>` : ''}
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 p-4 pt-0">
+            <button onclick="editExercise('${ex.id}')" class="text-xs text-slate-400 hover:text-blue-400 px-2 py-1 transition">Editar</button>
+            <button onclick="deleteExercise('${ex.id}')" class="text-xs text-slate-400 hover:text-red-400 px-2 py-1 transition">Excluir</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openUserModal() {
+      document.getElementById("userForm").reset();
+      document.getElementById("userModal").classList.remove("hidden");
+      document.getElementById("userModal").classList.add("flex");
+    }
+
+    function closeUserModal() {
+      document.getElementById("userModal").classList.add("hidden");
+      document.getElementById("userModal").classList.remove("flex");
+    }
+
+    function handleSaveUser(e) {
+      e.preventDefault();
+      const name = document.getElementById("userNameInput").value.trim();
+      const goal = document.getElementById("userGoalInput").value.trim();
+      const newUser = { id: "u_" + Date.now(), name, goal };
+      appData.users.push(newUser);
+      currentUserId = newUser.id;
+      saveData();
+      closeUserModal();
+      init();
+    }
+
+    function openExerciseModal(isEdit = false) {
+      if (!isEdit) {
+        document.getElementById("exerciseForm").reset();
+        document.getElementById("exerciseIdInput").value = "";
+        document.getElementById("exCategoryInput").value = activeCategory;
+        document.getElementById("exerciseModalTitle").textContent = "Adicionar Exercício";
+      }
+      document.getElementById("exerciseModal").classList.remove("hidden");
+      document.getElementById("exerciseModal").classList.add("flex");
+    }
+
+    function closeExerciseModal() {
+      document.getElementById("exerciseModal").classList.add("hidden");
+      document.getElementById("exerciseModal").classList.remove("flex");
+    }
+
+    function handleSaveExercise(e) {
+      e.preventDefault();
+      const id = document.getElementById("exerciseIdInput").value;
+      const name = document.getElementById("exNameInput").value.trim();
+      const category = document.getElementById("exCategoryInput").value;
+      const reps = document.getElementById("exRepsInput").value.trim();
+      const gifUrl = document.getElementById("exGifInput").value.trim();
+      const notes = document.getElementById("exNotesInput").value.trim();
+
+      if (id) {
+        const index = appData.exercises.findIndex(ex => ex.id === id);
+        if (index !== -1) {
+          appData.exercises[index] = { ...appData.exercises[index], name, category, reps, gifUrl, notes };
+        }
+      } else {
+        const newEx = { id: "ex_" + Date.now(), userId: currentUserId, category, name, reps, gifUrl, notes };
+        appData.exercises.push(newEx);
+      }
+
+      saveData();
+      closeExerciseModal();
+      activeCategory = category;
+      renderCategoryTabs();
+      renderExercises();
+    }
+
+    function editExercise(id) {
+      const ex = appData.exercises.find(item => item.id === id);
+      if (!ex) return;
+      document.getElementById("exerciseIdInput").value = ex.id;
+      document.getElementById("exNameInput").value = ex.name;
+      document.getElementById("exCategoryInput").value = ex.category;
+      document.getElementById("exRepsInput").value = ex.reps;
+      document.getElementById("exGifInput").value = ex.gifUrl;
+      document.getElementById("exNotesInput").value = ex.notes || "";
+      document.getElementById("exerciseModalTitle").textContent = "Editar Exercício";
+      openExerciseModal(true);
+    }
+
+    function deleteExercise(id) {
+      if (confirm("Tem certeza que deseja remover este exercício do treino?")) {
+        appData.exercises = appData.exercises.filter(ex => ex.id !== id);
+        saveData();
+        renderExercises();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
