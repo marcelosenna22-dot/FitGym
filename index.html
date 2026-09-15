@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gerenciador de Treinos com GIFs</title>
+  <title>Gerenciador de Treinos com GIFs & Firebase</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .active-tab {
@@ -15,7 +15,6 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-12">
 
-  <!-- Header -->
   <header class="bg-slate-800 border-b border-slate-700 shadow-md sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
@@ -27,7 +26,6 @@
         <h1 class="text-xl font-bold text-white tracking-wide">FitGym <span class="text-blue-500">GIFs</span></h1>
       </div>
 
-      <!-- User Selector -->
       <div class="flex items-center gap-3 w-full md:w-auto">
         <label for="userSelect" class="text-sm font-medium text-slate-400 whitespace-nowrap">Usuário Atual:</label>
         <select id="userSelect" onchange="switchUser(this.value)" class="bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm w-full md:w-auto">
@@ -40,13 +38,10 @@
     </div>
   </header>
 
-  <!-- Main Container -->
   <main class="max-w-6xl mx-auto px-4 mt-6">
-    
-    <!-- User Profile Banner -->
     <div id="userProfileBanner" class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h2 id="currentUserName" class="text-xl font-bold text-white">Carregando...</h2>
+        <h2 id="currentUserName" class="text-xl font-bold text-white">Carregando dados...</h2>
         <p id="currentUserMeta" class="text-sm text-slate-400">Objetivo: -</p>
       </div>
       <button onclick="openExerciseModal()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition shadow-lg">
@@ -55,13 +50,10 @@
       </button>
     </div>
 
-    <!-- Category Tabs -->
     <div class="flex border-b border-slate-700 mb-6 overflow-x-auto" id="categoryTabs"></div>
 
-    <!-- Exercise Grid -->
     <div id="exerciseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
-    <!-- Empty State -->
     <div id="emptyState" class="hidden text-center py-16 bg-slate-800/50 rounded-2xl border border-dashed border-slate-700">
       <h3 class="text-lg font-semibold text-slate-300">Nenhum exercício encontrado</h3>
       <p class="text-slate-500 text-sm mt-1 mb-4">Adicione exercícios com links de GIF para montar esta rotina.</p>
@@ -69,7 +61,6 @@
     </div>
   </main>
 
-  <!-- Modal: Novo Usuário -->
   <div id="userModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
       <h3 class="text-lg font-bold text-white mb-4">Cadastrar Novo Usuário</h3>
@@ -90,7 +81,6 @@
     </div>
   </div>
 
-  <!-- Modal: Adicionar/Editar Exercício -->
   <div id="exerciseModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
       <h3 id="exerciseModalTitle" class="text-lg font-bold text-white mb-4">Adicionar Exercício ao Treino</h3>
@@ -120,7 +110,7 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">URL / Link Direto do GIF</label>
-          <input type="url" id="exGifInput" required placeholder="https://media.giphy.com/media/..." class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
+          <input type="url" id="exGifInput" required placeholder="https://upload.wikimedia.org/..." class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
           <p class="text-[11px] text-slate-500 mt-1">Cole o link direto do GIF (Giphy, Tenor ou URL de imagem).</p>
         </div>
 
@@ -137,49 +127,67 @@
     </div>
   </div>
 
-  <script>
-    // Exemplos com GIFs funcionais hospedados na Wikimedia Commons
-    const defaultData = {
-      users: [
-        { id: "u1", name: "Marcelo Sena", goal: "Hipertrofia & Força" },
-        { id: "u2", name: "Ana Souza", goal: "Condicionamento Físico" }
-      ],
-      exercises: [
-        {
-          id: "ex1",
-          userId: "u1",
-          category: "Treino A",
-          name: "Flexão de Braços",
-          reps: "4x 10-12",
-          gifUrl: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Pushups.gif",
-          notes: "Mantenha o corpo todo alinhado e cotovelos em ~45 graus."
-        },
-        {
-          id: "ex2",
-          userId: "u1",
-          category: "Treino C",
-          name: "Agachamento Livre",
-          reps: "4x 12",
-          gifUrl: "https://upload.wikimedia.org/wikipedia/commons/8/82/Squats.gif",
-          notes: "Desça com o quadril para trás até os joelhos atingirem 90°."
-        }
-      ]
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCK1oLYghs_v_siVWvPEfnnZhhH6jC3qEY",
+      authDomain: "fitgym-d43bf.firebaseapp.com",
+      databaseURL: "https://fitgym-d43bf-default-rtdb.firebaseio.com",
+      projectId: "fitgym-d43bf",
+      storageBucket: "fitgym-d43bf.firebasestorage.app",
+      messagingSenderId: "975613301900",
+      appId: "1:975613301900:web:ef59f4afecf504b62157a9",
+      measurementId: "G-LV2R48TX5J"
     };
 
-    let appData = JSON.parse(localStorage.getItem("fitgym_gif_data")) || defaultData;
-    let currentUserId = appData.users[0]?.id || "";
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let appData = { users: [], exercises: [] };
+    let currentUserId = "";
     let activeCategory = "Treino A";
     const categories = ["Treino A", "Treino B", "Treino C", "Cardio / Core"];
 
-    function saveData() {
-      localStorage.setItem("fitgym_gif_data", JSON.stringify(appData));
+    function listenToFirebase() {
+      const appRef = ref(db, 'fitgym_data');
+      onValue(appRef, (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          appData.users = val.users ? Object.keys(val.users).map(k => ({ id: k, ...val.users[k] })) : [];
+          appData.exercises = val.exercises ? Object.keys(val.exercises).map(k => ({ id: k, ...val.exercises[k] })) : [];
+        } else {
+          setupDefaultData();
+          return;
+        }
+
+        if (!currentUserId && appData.users.length > 0) {
+          currentUserId = appData.users[0].id;
+        }
+
+        renderUserOptions();
+        renderCategoryTabs();
+        renderCurrentUserData();
+        renderExercises();
+      });
     }
 
-    function init() {
-      renderUserOptions();
-      renderCategoryTabs();
-      renderCurrentUserData();
-      renderExercises();
+    function setupDefaultData() {
+      const userRef = push(ref(db, 'fitgym_data/users'));
+      const defaultUserId = userRef.key;
+      
+      set(userRef, { name: "Marcelo Sena", goal: "Hipertrofia & Força" });
+
+      const ex1Ref = push(ref(db, 'fitgym_data/exercises'));
+      set(ex1Ref, {
+        userId: defaultUserId,
+        category: "Treino A",
+        name: "Flexão de Braços",
+        reps: "4x 10-12",
+        gifUrl: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Pushups.gif",
+        notes: "Mantenha o corpo alinhado e cotovelos em ~45 graus."
+      });
     }
 
     function renderUserOptions() {
@@ -189,17 +197,20 @@
       ).join('');
     }
 
-    function switchUser(userId) {
+    window.switchUser = function(userId) {
       currentUserId = userId;
       renderCurrentUserData();
       renderExercises();
-    }
+    };
 
     function renderCurrentUserData() {
       const user = appData.users.find(u => u.id === currentUserId);
       if (user) {
         document.getElementById("currentUserName").textContent = user.name;
         document.getElementById("currentUserMeta").textContent = `Objetivo: ${user.goal || 'Geral'}`;
+      } else {
+        document.getElementById("currentUserName").textContent = "Nenhum Usuário Selecionado";
+        document.getElementById("currentUserMeta").textContent = "Objetivo: -";
       }
     }
 
@@ -212,11 +223,11 @@
       `).join('');
     }
 
-    function selectCategory(cat) {
+    window.selectCategory = function(cat) {
       activeCategory = cat;
       renderCategoryTabs();
       renderExercises();
-    }
+    };
 
     function renderExercises() {
       const grid = document.getElementById("exerciseGrid");
@@ -236,7 +247,6 @@
       grid.innerHTML = filtered.map(ex => `
         <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-lg flex flex-col justify-between hover:border-slate-600 transition">
           <div>
-            <!-- Moldura do GIF -->
             <div class="relative bg-slate-950 h-64 flex items-center justify-center overflow-hidden border-b border-slate-700">
               <img 
                 src="${ex.gifUrl}" 
@@ -263,30 +273,34 @@
       `).join('');
     }
 
-    function openUserModal() {
+    window.openUserModal = function() {
       document.getElementById("userForm").reset();
       document.getElementById("userModal").classList.remove("hidden");
       document.getElementById("userModal").classList.add("flex");
-    }
+    };
 
-    function closeUserModal() {
+    window.closeUserModal = function() {
       document.getElementById("userModal").classList.add("hidden");
       document.getElementById("userModal").classList.remove("flex");
-    }
+    };
 
-    function handleSaveUser(e) {
+    window.handleSaveUser = function(e) {
       e.preventDefault();
       const name = document.getElementById("userNameInput").value.trim();
       const goal = document.getElementById("userGoalInput").value.trim();
-      const newUser = { id: "u_" + Date.now(), name, goal };
-      appData.users.push(newUser);
-      currentUserId = newUser.id;
-      saveData();
-      closeUserModal();
-      init();
-    }
 
-    function openExerciseModal(isEdit = false) {
+      const newUserRef = push(ref(db, 'fitgym_data/users'));
+      set(newUserRef, { name, goal }).then(() => {
+        currentUserId = newUserRef.key;
+        window.closeUserModal();
+      });
+    };
+
+    window.openExerciseModal = function(isEdit = false) {
+      if (!currentUserId) {
+        alert("Cadastre ou selecione um usuário primeiro!");
+        return;
+      }
       if (!isEdit) {
         document.getElementById("exerciseForm").reset();
         document.getElementById("exerciseIdInput").value = "";
@@ -295,14 +309,14 @@
       }
       document.getElementById("exerciseModal").classList.remove("hidden");
       document.getElementById("exerciseModal").classList.add("flex");
-    }
+    };
 
-    function closeExerciseModal() {
+    window.closeExerciseModal = function() {
       document.getElementById("exerciseModal").classList.add("hidden");
       document.getElementById("exerciseModal").classList.remove("flex");
-    }
+    };
 
-    function handleSaveExercise(e) {
+    window.handleSaveExercise = function(e) {
       e.preventDefault();
       const id = document.getElementById("exerciseIdInput").value;
       const name = document.getElementById("exNameInput").value.trim();
@@ -311,24 +325,22 @@
       const gifUrl = document.getElementById("exGifInput").value.trim();
       const notes = document.getElementById("exNotesInput").value.trim();
 
+      const exerciseData = { userId: currentUserId, category, name, reps, gifUrl, notes };
+
       if (id) {
-        const index = appData.exercises.findIndex(ex => ex.id === id);
-        if (index !== -1) {
-          appData.exercises[index] = { ...appData.exercises[index], name, category, reps, gifUrl, notes };
-        }
+        update(ref(db, `fitgym_data/exercises/${id}`), exerciseData).then(() => {
+          window.closeExerciseModal();
+        });
       } else {
-        const newEx = { id: "ex_" + Date.now(), userId: currentUserId, category, name, reps, gifUrl, notes };
-        appData.exercises.push(newEx);
+        const newExRef = push(ref(db, 'fitgym_data/exercises'));
+        set(newExRef, exerciseData).then(() => {
+          activeCategory = category;
+          window.closeExerciseModal();
+        });
       }
+    };
 
-      saveData();
-      closeExerciseModal();
-      activeCategory = category;
-      renderCategoryTabs();
-      renderExercises();
-    }
-
-    function editExercise(id) {
+    window.editExercise = function(id) {
       const ex = appData.exercises.find(item => item.id === id);
       if (!ex) return;
       document.getElementById("exerciseIdInput").value = ex.id;
@@ -338,18 +350,16 @@
       document.getElementById("exGifInput").value = ex.gifUrl;
       document.getElementById("exNotesInput").value = ex.notes || "";
       document.getElementById("exerciseModalTitle").textContent = "Editar Exercício";
-      openExerciseModal(true);
-    }
+      window.openExerciseModal(true);
+    };
 
-    function deleteExercise(id) {
+    window.deleteExercise = function(id) {
       if (confirm("Tem certeza que deseja remover este exercício do treino?")) {
-        appData.exercises = appData.exercises.filter(ex => ex.id !== id);
-        saveData();
-        renderExercises();
+        remove(ref(db, `fitgym_data/exercises/${id}`));
       }
-    }
+    };
 
-    init();
+    listenToFirebase();
   </script>
 </body>
 </html>
