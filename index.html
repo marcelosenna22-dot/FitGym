@@ -20,7 +20,7 @@
     <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-8 shadow-2xl">
       <div class="flex justify-center mb-4">
         <!-- LOGO LOGIN: Altere o src abaixo com o caminho da sua imagem -->
-        <img src="logo.png" alt="Logo FitGym Senna" class="w-20 h-20 object-contain filter drop-shadow-md">
+        <img src="logo.png" alt="Logo FitGym Senna" class="w-20 h-20 object-contain filter drop-shadow-md" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/2964/2964514.png';">
       </div>
       <h2 class="text-2xl font-bold text-center text-white mb-2">FitGym Access</h2>
       <p class="text-xs text-slate-400 text-center mb-6">Entre com seu usuário e senha fornecidos pelo instrutor.</p>
@@ -45,7 +45,7 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
         <!-- LOGO HEADER: Altere o src abaixo com o caminho da sua imagem -->
-        <img src="logo.png" alt="Logo FitGym Senna" class="w-10 h-10 object-contain p-1 bg-slate-700/80 rounded-lg border border-slate-600 shadow-sm">
+        <img src="logo.png" alt="Logo FitGym Senna" class="w-10 h-10 object-contain p-1 bg-slate-700/80 rounded-lg border border-slate-600 shadow-sm" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/2964/2964514.png';">
         <h1 class="text-xl font-bold text-white tracking-wide">FitGym <span class="text-blue-500">Senna</span></h1>
       </div>
 
@@ -76,6 +76,7 @@
       </button>
     </div>
 
+    <!-- Abas dos Dias da Semana -->
     <div class="flex border-b border-slate-700 mb-6 overflow-x-auto" id="categoryTabs"></div>
 
     <div id="exerciseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -147,11 +148,11 @@
           <label class="block text-xs font-medium text-slate-400 mb-1">Exercícios Predefinidos (Opções Rápidas)</label>
           <select id="presetExerciseSelect" onchange="applyExercisePreset(this.value)" class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm mb-3">
             <option value="">-- Selecionar um Exercício Pré-definido --</option>
-            <option value="agachamento_smith">Agachamento no Smith</option>
-            <option value="flexao_braco">Flexão de Braços</option>
-            <option value="supino_reto">Supino Reto com Barra</option>
-            <option value="remada_unilateral">Remada Unilateral com Halter</option>
-            <option value="leg_press">Leg Press 45°</option>
+            <option value="supino_reto">Segunda - Supino Reto com Barra</option>
+            <option value="flexao_braco">Segunda - Flexão de Braços</option>
+            <option value="remada_unilateral">Terça - Remada Unilateral com Halter</option>
+            <option value="agachamento_smith">Quarta - Agachamento no Smith</option>
+            <option value="leg_press">Quarta - Leg Press 45°</option>
           </select>
         </div>
         
@@ -162,12 +163,14 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Ficha / Treino</label>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Dia do Treino</label>
             <select id="exCategoryInput" class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:outline-none focus:border-blue-500 text-sm">
-              <option value="Treino A">Treino A (Peito / Tríceps)</option>
-              <option value="Treino B">Treino B (Costas / Bíceps)</option>
-              <option value="Treino C">Treino C (Pernas / Ombros)</option>
-              <option value="Cardio / Core">Cardio / Core</option>
+              <option value="Segunda">Segunda-feira</option>
+              <option value="Terça">Terça-feira</option>
+              <option value="Quarta">Quarta-feira</option>
+              <option value="Quinta">Quinta-feira</option>
+              <option value="Sexta">Sexta-feira</option>
+              <option value="Sábado / Cardio">Sábado / Cardio</option>
             </select>
           </div>
           <div>
@@ -214,42 +217,42 @@
 
     let appData = { users: [], exercises: [] };
     let currentUserId = "";
-    let activeCategory = "Treino A";
+    let activeCategory = "Segunda";
     let currentUserRole = ""; 
-    const categories = ["Treino A", "Treino B", "Treino C", "Cardio / Core"];
+    const categories = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado / Cardio"];
 
     const exercisePresets = {
-      agachamento_smith: {
-        name: "Agachamento no Smith",
-        category: "Treino C",
-        reps: "4x 10-12",
-        gifUrl: "https://upload.wikimedia.org/wikipedia/commons/8/82/Squats.gif",
-        notes: "Mantenha a coluna neutra e pés alinhados com os ombros."
-      },
-      flexao_braco: {
-        name: "Flexão de Braços",
-        category: "Treino A",
-        reps: "4x 10-12",
-        gifUrl: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Pushups.gif",
-        notes: "Mantenha o corpo alinhado e cotovelos em ~45 graus."
-      },
       supino_reto: {
         name: "Supino Reto com Barra",
-        category: "Treino A",
+        category: "Segunda",
         reps: "4x 8-10",
         gifUrl: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Bench-press-1.gif",
         notes: "Escápulas retraídas e pés firmes no chão."
       },
+      flexao_braco: {
+        name: "Flexão de Braços",
+        category: "Segunda",
+        reps: "4x 10-12",
+        gifUrl: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Pushups.gif",
+        notes: "Mantenha o corpo alinhado e cotovelos em ~45 graus."
+      },
       remada_unilateral: {
         name: "Remada Unilateral com Halter",
-        category: "Treino B",
+        category: "Terça",
         reps: "3x 12",
         gifUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Dumbbell-row-1.gif",
         notes: "Puxe o halter em direção ao quadril mantendo o cotovelo próximo ao corpo."
       },
+      agachamento_smith: {
+        name: "Agachamento no Smith",
+        category: "Quarta",
+        reps: "4x 10-12",
+        gifUrl: "https://upload.wikimedia.org/wikipedia/commons/8/82/Squats.gif",
+        notes: "Mantenha a coluna neutra e pés alinhados com os ombros."
+      },
       leg_press: {
         name: "Leg Press 45°",
-        category: "Treino C",
+        category: "Quarta",
         reps: "4x 12",
         gifUrl: "https://upload.wikimedia.org/wikipedia/commons/4/44/Leg-press-1.gif",
         notes: "Não feche os joelhos para dentro durante a execução."
@@ -343,7 +346,7 @@
       const ex1Ref = push(ref(db, 'fitgym_data/exercises'));
       set(ex1Ref, {
         userId: defaultUserId,
-        category: "Treino A",
+        category: "Segunda",
         name: "Flexão de Braços",
         reps: "4x 10-12",
         gifUrl: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Pushups.gif",
